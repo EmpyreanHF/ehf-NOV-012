@@ -1,0 +1,682 @@
+/* =============================================================================
+   EMPYREAN INTERNATIONAL — DESIGN TOKEN SYSTEM
+   tokens.css  |  Step 0.1b  |  Refactor Roadmap v1.0
+
+   REVISION 2026-07-25 — Blue/Green co-primary + Fraunces/Manrope rollout
+   Palette: Blue (--primary-social) and Green (--primary-giving) are now
+   co-primary by context, not simultaneously. --color-gold is now #FFD500
+   (brighter brand yellow) as the default CTA accent — this is the same hex
+   as --color-brand-yellow/--accent-bright, so the two tokens are now
+   coincidentally identical in value (see notes below); they remain separate
+   tokens since they still mean different things semantically.
+   Pink added for engagement (likes/reactions), decoupled from danger-red.
+   Typography: display font moved Playfair Display -> Fraunces; --font-ui
+   folded into --font-sans (Manrope), replacing the separate Outfit stack.
+   See inline NEW/CHANGED notes throughout for the reasoning behind each.
+   =============================================================================
+
+   HOW TO USE
+   ──────────
+   1. Link this file FIRST in <head>, before style.css and any component CSS:
+         <link rel="stylesheet" href="tokens.css">
+         <link rel="stylesheet" href="style.css">
+
+   2. Every colour, shadow, gradient, radius, spacing, z-index, typography
+      value in the codebase should reference one of these tokens via var(--).
+
+   3. Never hardcode a hex value, rgba(), or px dimension in component CSS
+      if a token already covers it. Add a new token here instead.
+
+   4. Tokens are grouped into numbered sections. Add new tokens at the end
+      of the relevant section — never re-order existing tokens (it breaks
+      any CSS that has been authored to a specific line reference).
+
+   SECTION MAP
+   ───────────
+   §1  Brand palette          — core named colours
+   §2  Semantic colours       — purpose-mapped aliases of §1
+   §3  Surface & background   — page, card, overlay surfaces
+   §4  Typography             — font families, size scale, line heights, weights
+   §5  Spacing scale          — 4-pt grid (--space-1 … --space-20)
+   §6  Border & radius        — border colours + radius scale
+   §7  Shadows                — xs → xl + coloured shadows
+   §8  Gradients              — named gradient shorthands
+   §9  Transitions            — duration + easing presets
+   §10 Z-index layers         — stacking context map
+   §11 Component tokens       — per-component overrideable defaults
+   §12 Legacy aliases         — backward-compat names; do not use in new code
+
+   ============================================================================= */
+
+:root {
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §1  BRAND PALETTE
+     Raw named colours. Use semantic aliases (§2) in component CSS so that
+     re-theming only requires changing one place.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* — Core brand — */
+  --color-navy:          #0A0E27;   /* Deep Space Navy      — primary brand */
+  --color-navy-rgb:      10, 14, 39;    /* RGB triplet for rgba() opacity variants of --color-navy (NEW 2026-07-25: index.html had ~65 raw rgba(10,14,39,...) literals) */
+  --color-royal:         #1B2B8B;   /* Royal Blue           — PRIMARY (Social/Live context) */
+  --color-royal-rgb:     27, 43, 139;   /* RGB triplet for rgba() opacity variants of --color-royal (NEW 2026-07-25: ~23 raw literals in index.html) */
+  --color-midnight:      #0D1540;   /* Midnight Blue         — hero mid-stop */
+  --color-gold:          #FFD500;   /* Bright Gold           — accent / CTA (2026-07-25: was Rich Gold #D4AF37, now the brighter brand yellow used as the everyday CTA fill) */
+  --color-gold-dark:     #BFA000;   /* Deep Gold             — hover / darkened accent */
+  --color-gold-rgb:      255, 213, 0;  /* RGB triplet for rgba() opacity variants of --color-gold */
+  --color-gold-light:    #FFE666;   /* Light Gold            — shimmer tint / gradient highlight (NEW 2026-07-25: promoted from nav-patch.css's local hardcoded #FFE666 so both files share one source) */
+  --color-gold-amber:    #F59E0B;   /* Amber Gold            — gradient stop */
+  --color-teal:          #00D4AA;   /* Emerald Teal          — accent2 / likes */
+  --color-teal-rgb:      0, 212, 170;   /* RGB triplet for rgba() opacity variants of --color-teal (NEW 2026-07-25) */
+  --color-teal-dark:     #10B981;   /* Deep Teal / Emerald   — success states */
+  --color-teal-dark-rgb: 16, 185, 129;  /* RGB triplet for rgba() opacity variants of --color-teal-dark / --success-color (NEW 2026-07-25) */
+  --color-teal-deep:     #00897B;   /* Ocean Teal            — deeper success */
+
+  /* NEW (2026-07-25 — Blue/Green co-primary rollout): --color-green is a
+     distinct token from --color-teal-dark/--color-success on purpose. Teal
+     and success-green already had a settled job (confirmations, success
+     toasts). Giving/impact flows (Grant Portal, donor profile, SOS
+     sponsorship) needed their own primary that can carry large fills,
+     headings and CTA backgrounds — reusing the success color for that would
+     have coupled "this donation succeeded" and "this is the giving section"
+     into one hex, so a future tweak to one would silently repaint the other. */
+  --color-green:         #0E7A4E;   /* Emerald Green         — PRIMARY (Giving/Impact context) */
+  --color-green-dark:    #0A5C3A;   /* Deep Emerald          — hover / pressed */
+
+  /* NEW (2026-07-25): the literal brand yellow the user specified. Originally
+     kept separate from --color-gold (champagne) on purpose. UPDATED same day:
+     --color-gold itself was changed to this exact hex (#FFD500) per a later
+     request, so the two tokens are now coincidentally the same color even
+     though they're still semantically distinct — --color-brand-yellow is
+     still the one to reach for on small, high-energy touches (icon fills,
+     badge borders, reward pills), while --color-gold/--accent is the one for
+     CTA/premium fills. Kept as two separate tokens rather than merged, since
+     collapsing them would remove the ability to re-diverge them later
+     without another find-and-replace across the codebase. */
+  --color-brand-yellow:  #FFD500;   /* Brand Yellow          — small accents: icons, badges, pills */
+
+  /* NEW (2026-07-25): engagement accent — likes/reactions previously reused
+     --color-danger (see §11 note below on why that coupling was undone). */
+  --color-pink:          #E8447A;   /* Warm Pink             — engagement: likes, reactions, notif accents */
+  --color-pink-dark:     #C22F5D;   /* Deep Pink             — hover / pressed */
+  --color-pink-rgb:      232, 68, 122;  /* RGB triplet for rgba() opacity variants of --color-pink */
+
+  /* — Live / Impact — */
+  --color-live:          #5B0EA6;   /* Impact Purple         — live badges, staking */
+  --color-live-dark:     #1A0533;   /* Deep Purple           — live card headings */
+  --color-flame:         #FF5722;   /* Flame Orange          — loading, active nav, live gradient stop */
+  --color-flame-light:   #FF8A65;   /* Light Flame           — gradient stop */
+  --color-flame-amber:   #FFAB40;   /* Flame Amber           — loading progress stop */
+
+  /* — Status — */
+  --color-success:       #10B981;   /* Emerald Green         — confirmed, approved */
+  --color-success-dark:  #059669;   /* Dark Emerald          — hover / pressed */
+  --color-danger:        #EF4444;   /* Coral Red             — error, delete */
+  --color-danger-rgb:    239, 68, 68;   /* RGB triplet for rgba() opacity variants of --color-danger (NEW 2026-07-25: ~38 raw literals in index.html) */
+  --color-danger-deep:   #B91C1C;   /* Deep Danger Red       — dark gradient stop paired with --color-danger (NEW 2026-07-25: index.html had this same role filled inconsistently by both #B91C1C x4 and #7F1D1D x1 — consolidated onto the majority value) */
+  --color-danger-dark:   #E53935;   /* Dark Red              — hover / pressed */
+  --color-danger-light:  #F87171;   /* Light Red             — muted error text */
+  --color-warning:       #F59E0B;   /* Amber                 — caution */
+  --color-warning-dark:  #f57c00;   /* Deep Amber            — hover */
+
+  /* NEW (2026-07-21 — Midnight & Champagne Gold recolor): a dedicated
+     crimson pair for the LIVE badge only. It used to reuse --color-danger
+     (error/delete red) directly — visually fine by coincidence, but it
+     meant the LIVE badge could never be refined without also recoloring
+     every error/delete/SOS-crisis element in the app, or vice versa. Giving
+     it its own two colors here means the two can now be styled completely
+     independently. --color-danger and everything built on it (error states,
+     .btn-danger, SOS/crisis-report styling, delete confirmations) is
+     completely untouched by this addition. */
+  --color-crimson:       #B4373A;   /* Deep Crimson          — LIVE badge only */
+  --color-crimson-light: #C9726E;   /* Light Crimson         — LIVE badge gradient stop */
+
+  /* — Neutrals (dark-to-light scale) — */
+  --color-neutral-900:   #0A0E27;   /* = --color-navy */
+  --color-neutral-800:   #1A0533;   /* = --color-live-dark */
+  --color-neutral-700:   #333333;
+  --color-neutral-600:   #444444;
+  --color-neutral-500:   #555555;
+  --color-neutral-400:   #666666;
+  --color-neutral-350:   #888888;
+  --color-neutral-300:   #9CA3AF;   /* Light muted text */
+  --color-neutral-200:   #cccccc;
+  --color-neutral-150:   #dddddd;
+  --color-neutral-100:   #eeeeee;
+  --color-neutral-75:    #f0f0f0;
+  --color-neutral-50:    #f5f5f5;
+  --color-neutral-25:    #fafafa;
+  --color-white:         #ffffff;
+  --color-black:         #000000;
+
+  /* — Special surface tints — */
+  --color-surface-blue:  #F8F9FF;   /* Card tint — card gradient stop */
+  --color-surface-warm:  #fff8e1;   /* Warm ivory — notification backgrounds */
+  --color-surface-green: #e8f5e9;   /* Success tint */
+  --color-surface-red:   #ffebee;   /* Danger tint */
+  --color-surface-red2:  #fff5f5;   /* Softer danger tint */
+  --color-surface-purple:#f9f6fc;   /* Live/impact tint */
+  /* NEW (2026-07-25): giving-context light surface tint — distinct from
+     --color-surface-green (that one stays scoped to universal success
+     states like confirmations/toasts, not to "this whole card lives in
+     the giving section"). Used for chip/pill/card backgrounds inside
+     Grant Portal and Donor Hub. */
+  --color-surface-giving:#EAF6F0;
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §2  SEMANTIC COLOURS
+     Map brand colours to purpose. Component CSS should use these, not §1.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* ── Co-primary system (2026-07-25) ──────────────────────────────────────
+     Blue and Green are both "primary" but for different contexts, not
+     both at once on the same screen. USAGE RULE: on any single screen or
+     card, exactly ONE primary should do ~80% of the color work — pick
+     --primary-social for social/live/messaging/feed contexts, or
+     --primary-giving for Grant Portal/donor/SOS-sponsorship contexts.
+     --primary itself stays the default fallback (social/blue) so existing
+     component CSS referencing --primary keeps working unchanged; giving-
+     context components should override --primary locally to
+     var(--primary-giving) rather than hardcoding green.
+     Gold (--accent) remains the default CTA/premium-fill color everywhere.
+     --accent-bright is reserved for small accents ONLY — never a large fill
+     or gradient background — even though it now happens to share #FFD500's
+     exact hex with --accent/--color-gold after the 2026-07-25 gold update;
+     the "never a large fill" rule is about --accent-bright's role as an
+     icon/badge accent, not about the hex being visually distinct from gold
+     anymore. Purple, pink, and red are strictly
+     functional (live badge, engagement icon, danger/SOS) and should never
+     be used as a large decorative fill competing with whichever primary
+     is active on that screen. ────────────────────────────────────────── */
+  --primary-social:      var(--color-royal);     /* Blue — feed, messaging, live, nav */
+  --primary-giving:      var(--color-green);     /* Green — Grant Portal, donor, SOS sponsorship */
+  --primary:             var(--primary-social);  /* Default fallback for existing code */
+  --secondary:           var(--color-royal);
+  --accent:              var(--color-gold);      /* Default CTA / premium fill */
+  --accent-bright:       var(--color-brand-yellow); /* Sparing use only — see rule above */
+  --accent2:             var(--color-teal);
+  --accent-hover:        var(--color-gold-dark);
+  --engagement:          var(--color-pink);      /* Likes, reactions, notification accents */
+  --engagement-hover:    var(--color-pink-dark);
+
+  --text-primary:        var(--color-navy);      /* Headings, body text */
+  --text:                var(--color-navy);      /* Alias for --text-primary */
+  --text-muted:          #6B7280;                /* Supporting text */
+  --text-light:          var(--color-neutral-300);
+  --text-inverse:        var(--color-white);     /* Text on dark backgrounds */
+  --text-link:           var(--color-royal);
+  --text-link-hover:     var(--color-gold);
+
+  --success:             var(--color-success);
+  --danger:              var(--color-danger);
+  --danger-light:        var(--color-danger-light);
+  --warning:             var(--color-warning);
+  --info:                var(--color-royal);
+
+  --live-color:          var(--color-live);      /* Live stream / impact purple */
+  --live-color-dark:     var(--color-live-dark);
+  --flame-color:         var(--color-flame);     /* Loading bar, active nav */
+  --retweet-color:       var(--color-teal);
+
+  /* Status indicators */
+  --status-new-color:    var(--color-success);
+  --status-viewed-color: #6B7280;
+  --status-live:         var(--color-danger);    /* Red dot on live indicator */
+  --status-online:       var(--color-success);
+  --status-offline:      var(--color-neutral-300);
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §3  SURFACE & BACKGROUND
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  --background:          #F0F2F8;   /* Platinum — page background */
+  --surface:             var(--color-white);     /* Card / panel surface */
+  --surface-raised:      var(--color-white);     /* Elevated card (same as surface for now) */
+  --surface-overlay:     rgba(10, 14, 39, 0.55); /* Scrim / modal backdrop */
+  --surface-overlay-dark:rgba(0, 0, 0, 0.70);
+  --surface-glass:       rgba(255, 255, 255, 0.12);
+  --surface-glass-border:rgba(255, 255, 255, 0.20);
+  --card-surface:        var(--color-white);     /* Resolves previously undefined --card-surface */
+
+  /* Sidebar / nav dark surface */
+  --surface-nav:         var(--color-navy);
+  --surface-nav-hover:   rgba(255, 255, 255, 0.15);
+  --surface-nav-active:  rgba(255, 255, 255, 0.20);
+
+  /* Live stream surface */
+  --surface-live:        rgba(91, 14, 166, 0.06);
+  --surface-live-active: rgba(91, 14, 166, 0.12);
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §4  TYPOGRAPHY
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* — Font families — */
+  /* CHANGED (2026-07-25 — Fraunces/Manrope rollout): was Inter (body) +
+     Playfair Display (display) + Outfit (UI labels) — three separate sans
+     stacks (Inter, Outfit) doing overlapping jobs was part of what read as
+     inconsistent. --font-ui now equals --font-sans (one sans family, one
+     CDN request) instead of a second distinct typeface. */
+  --font-sans:      'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display:   'Fraunces', Georgia, serif;   /* Hero headings, section titles */
+  --font-ui:        var(--font-sans);             /* Was 'Outfit' — folded into --font-sans */
+  --font-mono:      'Courier New', monospace;
+
+  /* — Type scale (rem, base = 16px) — */
+  --text-2xs:   0.625rem;    /*  10px */
+  --text-xs:    0.700rem;    /*  11px */
+  --text-sm:    0.800rem;    /*  12.8px */
+  --text-base:  0.875rem;    /*  14px  — body default (0.9rem rounds up) */
+  --text-md:    0.900rem;    /*  14.4px */
+  --text-lg:    1.000rem;    /*  16px */
+  --text-xl:    1.100rem;    /*  17.6px */
+  --text-2xl:   1.200rem;    /*  19.2px */
+  --text-3xl:   1.400rem;    /*  22.4px */
+  --text-4xl:   1.500rem;    /*  24px */
+  --text-5xl:   1.800rem;    /*  28.8px */
+  --text-6xl:   2.000rem;    /*  32px */
+  --text-7xl:   2.500rem;    /*  40px — large display */
+  --text-8xl:   3.000rem;    /*  48px — hero display (NEW 2026-07-25: added so index.html's five inline font-size:3rem hero instances have a real token instead of being snapped down to --text-7xl) */
+
+  /* — Fluid / clamped heading — */
+  --text-hero:  clamp(1.6rem, 4vw, 2.8rem);
+  --text-title: clamp(1.2rem, 3vw, 1.8rem);
+
+  /* — Line heights — */
+  --leading-none:   1;
+  --leading-tight:  1.2;
+  --leading-snug:   1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed:1.65;
+  --leading-loose:  1.8;
+
+  /* — Font weights — */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold:600;
+  --weight-bold:    700;
+  --weight-extrabold:800;
+  --weight-black:   900;
+
+  /* — Letter spacing — */
+  --tracking-tight:  -0.025em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.025em;
+  --tracking-wider:   0.05em;
+  --tracking-widest:  0.1em;
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §5  SPACING SCALE  (4-pt grid)
+     --space-N  =  N × 4px
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  --space-px:   1px;
+  --space-0:    0;
+  --space-1:    4px;
+  --space-2:    8px;
+  --space-3:    12px;
+  --space-4:    16px;
+  --space-5:    20px;
+  --space-6:    24px;
+  --space-7:    28px;
+  --space-8:    32px;
+  --space-9:    36px;
+  --space-10:   40px;
+  --space-11:   44px;
+  --space-12:   48px;
+  --space-14:   56px;
+  --space-16:   64px;
+  --space-20:   80px;
+  --space-24:   96px;
+  --space-32:   128px;
+
+  /* Semantic spacing aliases */
+  --gap-xs:     var(--space-1);   /*  4px */
+  --gap-sm:     var(--space-2);   /*  8px */
+  --gap-md:     var(--space-4);   /* 16px */
+  --gap-lg:     var(--space-6);   /* 24px */
+  --gap-xl:     var(--space-8);   /* 32px */
+  --gap-2xl:    var(--space-12);  /* 48px */
+
+  --padding-card:   var(--space-5);   /* 20px — standard card padding */
+  --padding-modal:  var(--space-6);   /* 24px — modal inner padding */
+  --padding-section:var(--space-8);   /* 32px — section gap */
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §6  BORDER & RADIUS
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* — Border colours — */
+  --border:            rgba(10, 14, 39, 0.07);   /* Default subtle border */
+  --border-strong:     rgba(10, 14, 39, 0.15);   /* Stronger divider */
+  --border-inverse:    rgba(255, 255, 255, 0.15); /* Border on dark surfaces */
+  --border-focus:      var(--color-royal);        /* Focus ring */
+  --border-danger:     var(--color-danger);
+  --border-success:    var(--color-success);
+  --light-gray:        rgba(10, 14, 39, 0.08);   /* Legacy alias (preserved) */
+
+  /* — Border widths — */
+  --border-width-thin:   1px;
+  --border-width-base:   2px;
+  --border-width-thick:  3px;
+  --border-width-focus:  3px;
+
+  /* — Border radius scale — */
+  --radius-none:   0;
+  --radius-xs:     3px;
+  --radius-sm:     5px;
+  --radius-md:     8px;
+  --radius-lg:     12px;
+  --radius-xl:     16px;
+  --radius-2xl:    20px;
+  --radius-3xl:    24px;
+  --radius-pill:   50px;
+  --radius-full:   50%;
+
+  /* Semantic radius aliases */
+  --radius-card:   var(--radius-lg);    /* 12px — standard card corners */
+  --radius-badge:  var(--radius-pill);  /* pill-shaped labels */
+  --radius-btn:    var(--radius-md);    /* 8px — standard button */
+  --radius-input:  var(--radius-md);    /* 8px — form inputs */
+  --radius-avatar: var(--radius-full);  /* circular avatar */
+  --radius-modal:  var(--radius-xl);    /* 16px — modal dialogs */
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §7  SHADOWS
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* — Elevation scale — */
+  --shadow-xs:   0 1px 2px rgba(10, 14, 39, 0.05);
+  --shadow-sm:   0 2px 8px  rgba(10, 14, 39, 0.06), 0 1px 2px rgba(10, 14, 39, 0.04);
+  --shadow-md:   0 4px 20px rgba(10, 14, 39, 0.08), 0 2px 6px rgba(10, 14, 39, 0.04);
+  --shadow-lg:   0 10px 40px rgba(10, 14, 39, 0.12), 0 4px 12px rgba(10, 14, 39, 0.06);
+  --shadow-xl:   0 20px 60px rgba(10, 14, 39, 0.16), 0 8px 20px rgba(10, 14, 39, 0.08);
+  --shadow-inner:inset 0 2px 4px rgba(10, 14, 39, 0.06);
+
+  /* — Coloured glow shadows — */
+  --shadow-gold:    0 8px 32px rgba(var(--color-gold-rgb), 0.30);
+  --shadow-gold-sm: 0 4px 16px rgba(var(--color-gold-rgb), 0.20);
+  --shadow-teal:    0 8px 32px rgba(0, 212, 170, 0.25);
+  --shadow-teal-sm: 0 4px 16px rgba(0, 212, 170, 0.15);
+  --shadow-live:    0 8px 32px rgba(91, 14, 166, 0.30);   /* Impact purple glow */
+  --shadow-flame:   0 8px 32px rgba(255, 87, 34, 0.25);   /* Flame orange glow */
+  --shadow-navy:    0 8px 32px rgba(10, 14, 39, 0.35);
+
+  /* — Overlay / backdrop — */
+  --shadow-overlay: 0 25px 80px rgba(0, 0, 0, 0.40);
+  --shadow-modal:   0 32px 80px rgba(10, 14, 39, 0.20), 0 8px 24px rgba(10, 14, 39, 0.10);
+
+  /* Semantic aliases */
+  --shadow-card:       var(--shadow-md);
+  --shadow-card-hover: var(--shadow-lg);
+  --shadow-btn:        var(--shadow-sm);
+  --shadow-btn-hover:  var(--shadow-md);
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §8  GRADIENTS
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* — Brand gradients — */
+  --g-navy:     linear-gradient(135deg, #0A0E27 0%, #1B2B8B 100%);
+  --g-royal:    linear-gradient(135deg, #1B2B8B 0%, #0A0E27 100%);
+  /* NEW (2026-07-25): giving-context hero/CTA gradient — replaces the
+     navy/blue gradients that Grant Portal, Donor Hub, and sponsorship CTAs
+     were using despite being giving-context (not social/live-context)
+     surfaces. See §2 co-primary usage rule. */
+  --g-giving:   linear-gradient(135deg, #0A5C3A 0%, #0E7A4E 55%, #148F5C 100%);
+  /* FIX (2026-07-21 — Midnight & Champagne Gold recolor): this gradient's
+     second stop used to be #F59E0B — the exact same hex as --color-warning/
+     --g-warning below. That was a coincidental hex collision, not an
+     intentional shared meaning (a "gold CTA" gradient and a "caution/
+     warning" gradient are different things that happened to reuse the same
+     value). Left as a hardcoded literal, updating gold here would have
+     either silently repainted every warning/caution UI element gold, or
+     required guessing which of the 4 F59E0B occurrences were "really" gold
+     vs "really" warning. Decoupled by switching to var() references to the
+     two gold tokens above (already champagne/bronze) — --color-warning and
+     --g-warning are completely untouched, still their original amber. */
+  --g-gold:     linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+  --g-teal:     linear-gradient(135deg, #00D4AA 0%, #10B981 100%);
+  --g-live:     linear-gradient(135deg, #5B0EA6 0%, #1B2B8B 100%);
+  --g-flame:    linear-gradient(90deg,  #FF5722 0%, #FFAB40 100%);
+
+  /* — Page / hero — */
+  --g-hero:     linear-gradient(160deg, #0A0E27 0%, #0D1540 40%, #1B2B8B 100%);
+  --g-hero-alt: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+
+  /* — Card surfaces — */
+  --g-card:     linear-gradient(145deg, #ffffff 0%, #F8F9FF 100%);
+  --g-card-warm:linear-gradient(145deg, #ffffff 0%, #fff8e1 100%);
+
+  /* — Glass morphism — */
+  --g-glass:    linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+  --g-glass-dark:linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+
+  /* — Status / accent accents — */
+  --g-success:  linear-gradient(135deg, #00D4AA 0%, #10B981 100%);
+  --g-danger:   linear-gradient(135deg, #EF4444 0%, #E53935 100%);
+  --g-warning:  linear-gradient(135deg, #F59E0B 0%, #f57c00 100%);
+  --g-impact:   linear-gradient(90deg,  #5B0EA6 0%, #FF5722 100%);  /* Impact mining bar */
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §9  TRANSITIONS
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* — Durations — */
+  --duration-instant:  50ms;
+  --duration-fast:     150ms;
+  --duration-base:     200ms;
+  --duration-moderate: 250ms;
+  --duration-slow:     300ms;
+  --duration-slower:   400ms;
+  --duration-sluggish: 600ms;
+
+  /* — Easing functions — */
+  --ease-linear:   linear;
+  --ease-in:       cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);   /* Slight overshoot */
+  --ease-smooth:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* — Composite transition presets — */
+  --transition-fast:     all var(--duration-fast)     var(--ease-in-out);
+  --transition-base:     all var(--duration-base)     var(--ease-in-out);
+  --transition-moderate: all var(--duration-moderate) var(--ease-in-out);
+  --transition-slow:     all var(--duration-slow)     var(--ease-in-out);
+  --transition-color:    color var(--duration-base) var(--ease-out),
+                         background-color var(--duration-base) var(--ease-out),
+                         border-color var(--duration-base) var(--ease-out);
+  --transition-transform:transform var(--duration-moderate) var(--ease-spring);
+  --transition-opacity:  opacity var(--duration-slow) var(--ease-out);
+  --transition-shadow:   box-shadow var(--duration-moderate) var(--ease-out);
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §10  Z-INDEX LAYERS
+     Stacking context map — never use bare integers in component CSS.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  --z-below:       -1;     /* Behind everything — decorative shapes */
+  --z-base:         0;     /* Normal flow */
+  --z-raised:       1;     /* Slightly elevated — hover cards */
+  --z-dropdown:    10;     /* Dropdowns, autocomplete lists */
+  --z-sticky:      20;     /* Sticky headers / nav */
+  --z-banner:      30;     /* Top-of-page banners, offline bar */
+  --z-overlay:    100;     /* Page overlays (cart, panels) */
+  --z-sidebar:    200;     /* Mobile sidebar drawer */
+  --z-modal:      600;     /* Modal dialogs */
+  --z-live:      2000;     /* Live stream player / fullscreen */
+  --z-toast:     4000;     /* Toast / push notifications */
+  --z-loading:   9998;     /* Skeleton / spinner overlays */
+  --z-splash:    9999;     /* Loading screen */
+  --z-critical:  99999;    /* Emergency overlay (auth required) */
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §11  COMPONENT TOKENS
+     Per-component defaults that can be overridden in component CSS via
+     local custom properties on the component root element.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* — Buttons — */
+  --btn-height-sm:      32px;
+  --btn-height-md:      40px;
+  --btn-height-lg:      48px;
+  --btn-padding-x-sm:   var(--space-3);
+  --btn-padding-x-md:   var(--space-4);
+  --btn-padding-x-lg:   var(--space-6);
+  --btn-font-size:      var(--text-base);
+  --btn-font-weight:    var(--weight-semibold);
+  --btn-radius:         var(--radius-btn);
+  --btn-transition:     var(--transition-base);
+
+  /* — Inputs — */
+  --input-height:       44px;
+  --input-padding-x:    var(--space-4);
+  --input-padding-y:    var(--space-3);
+  --input-font-size:    var(--text-md);
+  --input-radius:       var(--radius-input);
+  --input-border:       var(--border-strong);
+  --input-border-focus: var(--border-focus);
+  --input-bg:           var(--color-white);
+  --input-bg-focus:     var(--color-white);
+  --input-shadow-focus: 0 0 0 3px rgba(27, 43, 139, 0.15);
+
+  /* — Cards — */
+  --card-padding:       var(--padding-card);
+  --card-radius:        var(--radius-card);
+  --card-shadow:        var(--shadow-card);           /* also a legacy alias */
+  --card-hover-shadow:  var(--shadow-card-hover);     /* also a legacy alias */
+  --card-bg:            var(--card-surface);
+  --card-border:        var(--border);
+
+  /* — Avatar sizes — */
+  --avatar-xs:  24px;
+  --avatar-sm:  32px;
+  --avatar-md:  40px;
+  --avatar-lg:  48px;
+  --avatar-xl:  64px;
+  --avatar-2xl: 80px;
+  --avatar-3xl: 96px;
+  --avatar-4xl: 120px;
+
+  /* — Post / Feed card — */
+  --post-avatar-size:     var(--avatar-lg);    /* 48px */
+  --post-action-color:    var(--text-muted);
+  /* CHANGED (2026-07-25): was var(--color-danger) — likes reused the
+     error/delete red purely by coincidence. Red is now reserved strictly
+     for danger/delete/SOS-urgent; likes move to the new engagement pink so
+     the two can never be accidentally recolored together again. */
+  --post-like-color:      var(--engagement);
+  --post-retweet-color:   var(--color-teal);
+  --post-comment-color:   var(--color-royal);
+
+  /* — Nav / Sidebar — */
+  --nav-width:          260px;
+  --nav-width-collapsed: 72px;
+  --nav-item-height:     48px;
+  --nav-icon-size:       20px;
+
+  /* — Live stream — */
+  --live-badge-bg:       var(--color-crimson);       /* was var(--color-danger) — see §1 note above */
+  --live-badge-bg-light: var(--color-crimson-light); /* NEW — gradient stop, replaces hardcoded #F87171 */
+  --live-badge-color:   var(--color-white);
+  --live-accent:        var(--color-live);
+  --live-gradient:      var(--g-live);
+
+  /* — Notification badge — */
+  --badge-size:         18px;
+  --badge-font-size:    var(--text-2xs);
+  --badge-bg:           var(--color-danger);
+  --badge-color:        var(--color-white);
+
+  /* — Toast notifications — */
+  --toast-width:        340px;
+  --toast-padding:      var(--space-4);
+  --toast-radius:       var(--radius-lg);
+  --toast-shadow:       var(--shadow-lg);
+
+  /* — Modal — */
+  --modal-width-sm:     400px;
+  --modal-width-md:     560px;
+  --modal-width-lg:     720px;
+  --modal-width-xl:     900px;
+  --modal-radius:       var(--radius-modal);
+  --modal-padding:      var(--padding-modal);
+  --modal-shadow:       var(--shadow-modal);
+
+  /* — EMPY wallet chip — */
+  --empy-color:         var(--color-gold);
+  --empy-bg:            rgba(var(--color-gold-rgb), 0.12);
+  --empy-border:        rgba(var(--color-gold-rgb), 0.30);
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     §12  LEGACY ALIASES
+     These names existed in the original style.css.  Do NOT use them in
+     new code — use the canonical token from §1–§11 instead.
+     They exist purely to avoid breaking any existing CSS that uses them.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  --primary-color:      var(--primary);
+  --secondary-color:    var(--secondary);
+  --accent-color:       var(--accent);
+  --accent-hover-color: var(--accent-hover);
+  --background-color:   var(--background);
+  --white-color:        var(--color-white);
+  --text-color:         var(--text-primary);
+  --success-color:      var(--success);
+  --danger-color:       var(--danger);
+  --warning-color:      var(--warning);
+  --gradient-primary:   var(--g-navy);
+  --gradient-accent:    var(--g-gold);
+
+}
+
+/* =============================================================================
+   UTILITY: CSS reset anchors
+   Only the bare minimum that must come from the token file itself.
+   Full reset lives in style.css.
+   ============================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Smooth scroll - respects prefers-reduced-motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* =============================================================================
+   DARK MODE HOOK  (Phase 5 — not yet active; scaffold only)
+   When dark mode is implemented, override tokens here instead of duplicating
+   component styles. Uncomment and populate when ready.
+   =============================================================================
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background:         #0A0E27;
+    --surface:            #111827;
+    --card-surface:       #1F2937;
+    --text-primary:       #F9FAFB;
+    --text-muted:         #9CA3AF;
+    --border:             rgba(255,255,255,0.08);
+  }
+}
+
+*/

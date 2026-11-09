@@ -1,0 +1,669 @@
+/* ═══════════════════════════════════════════════════════════════════
+   EMPYREAN — NAV PATCH  (v5 — Midnight Navy & Rich Gold Edition, 2026-07-25)
+   Palette: Deep Navy + Rich Gold + Royal Blue
+   Background:  #0B1437 / #102057 / #1A3380
+   Accent:      var(--color-gold) / var(--color-gold-light), sourced from
+                token.css as of the 2026-07-25 token consolidation (see
+                :root block below) — no longer hardcoded in this file
+   Secondary:   #2563EB (royal blue) / #38BDF8 (sky sapphire)
+   Text:        #E8F0FF (frost white)
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* ── Core palette ───────────────────────────────────────────── */
+    --nav-bg:               #0B1437;
+    --nav-surface:          #102057;
+    --nav-surface-2:        #1A3380;
+
+    /* Gold accent (active states, brand)
+       CHANGED (2026-07-25 — token consolidation): these used to be this
+       file's own hardcoded copy of the gold hex, duplicating token.css's
+       --color-gold/--color-gold-light. That duplication is exactly what
+       caused this file to silently stay on the old gold during the last
+       two color updates until someone remembered to grep for it separately.
+       Now sourced from token.css directly — a future gold change only
+       needs to happen in one place. Requires token.css to be linked before
+       this file (see token.css's own HOW TO USE note). */
+    --nav-accent:           var(--color-gold);
+    --nav-accent-light:     var(--color-gold-light);
+
+    /* Royal blue (secondary, admin, info) */
+    --nav-blue:             #2563EB;
+    --nav-blue-light:       #38BDF8;
+
+    /* Text */
+    --nav-text:             #E8F0FF;
+    --nav-text-muted:       rgba(232,240,255,0.52);
+
+    /* States */
+    --nav-active-bg:        rgba(var(--color-gold-rgb), 0.11);
+    --nav-active-color:     var(--color-gold-light);
+    --nav-icon-active-bg:   rgba(var(--color-gold-rgb), 0.20);
+    --nav-icon-bg:          rgba(232,240,255,0.07);
+    --nav-hover-bg:         rgba(232,240,255,0.06);
+
+    /* Sizes */
+    --nav-icon-size:        32px;
+    --nav-transition:       0.18s ease;
+
+    /* Mobile nav */
+    --mobile-nav-bg:        #0B1437;
+    --mobile-nav-active:    var(--color-gold);
+    --mobile-nav-border:    rgba(var(--color-gold-rgb), 0.14);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   LOADING SCREEN OVERRIDE — RETIRED 2026-07-18
+   This section recolored the old crystalline-logo loading screen (whose
+   rings, core circle and polygon fills lived as inline styles in
+   index.html) from orange/purple to navy/gold, by matching those exact
+   inline-style substrings with attribute selectors. That markup has now
+   been fully replaced by the Empyrean Splash (starfield + glyph) block
+   in index.html, which is already navy/gold and carries its own scoped
+   CSS — so every selector below would match nothing. Removed rather
+   than left in place so no one mistakes it for live styling while
+   debugging a future loading-screen issue. Full original block is kept
+   in version control history if ever needed again.
+   ═══════════════════════════════════════════════════════════════════ */
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   QUICK-POST FAB — royal blue instead of purple
+   ═══════════════════════════════════════════════════════════════════ */
+#quick-post-fab {
+    background: linear-gradient(135deg, #1A3380, #2563EB) !important;
+    box-shadow: 0 4px 18px rgba(37,99,235,0.60), 0 0 0 3px rgba(37,99,235,0.18) !important;
+    border-color: rgba(255,255,255,0.35) !important;
+}
+#quick-post-fab:hover {
+    background: linear-gradient(135deg, #2563EB, #38BDF8) !important;
+    box-shadow: 0 6px 24px rgba(37,99,235,0.75) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════════════════════════════ */
+
+.sidebar {
+    background: linear-gradient(180deg, #0B1437 0%, #102057 55%, #0B1437 100%) !important;
+    border-right: 1px solid rgba(var(--color-gold-rgb), 0.10) !important;
+    box-shadow: 4px 0 40px rgba(0,0,0,0.45) !important;
+}
+
+/* Brand / logo title */
+.sidebar-header h2,
+.sidebar-brand-text,
+.sidebar .brand-name,
+.sidebar-logo span {
+    background: linear-gradient(135deg, var(--nav-accent-light) 0%, var(--nav-accent) 50%, #ffffff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    letter-spacing: 2.5px !important;
+}
+
+/* Header divider — gold shimmer line */
+.sidebar-header::after {
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(var(--color-gold-rgb), 0.55),
+        transparent) !important;
+}
+
+
+/* ── Strip all emoji pseudo-elements ─────────────────────────────── */
+.sidebar-nav li a::before,
+.sidebar-nav li a::after,
+.mobile-nav-item::before,
+.mobile-nav-item::after { font-family: inherit; content: none !important; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SIDEBAR NAV ITEMS
+   ═══════════════════════════════════════════════════════════════════ */
+
+.sidebar-nav li { list-style: none !important; margin: 0 !important; }
+
+.sidebar-nav li a {
+    display:         flex !important;
+    align-items:     center !important;
+    padding:         9px 14px !important;
+    margin:          2px 10px !important;
+    border-radius:   10px !important;
+    color:           var(--nav-text-muted) !important;
+    font-size:       0.86rem !important;
+    font-weight:     500 !important;
+    letter-spacing:  0.015em !important;
+    border:          none !important;
+    text-decoration: none !important;
+    gap:             0 !important;
+    position:        relative !important;
+    transition:      background var(--nav-transition),
+                     color var(--nav-transition),
+                     box-shadow var(--nav-transition) !important;
+    white-space:     nowrap !important;
+    overflow:        hidden !important;
+}
+
+.sidebar-nav li a:hover {
+    background: var(--nav-hover-bg) !important;
+    color:      rgba(232,240,255,0.92) !important;
+}
+
+
+/* ── Active state — gold left bar ────────────────────────────────── */
+.sidebar-nav li a.active {
+    background:  var(--nav-active-bg) !important;
+    color:       var(--nav-active-color) !important;
+    font-weight: 600 !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(var(--color-gold-rgb), 0.20),
+        0 2px 14px rgba(var(--color-gold-rgb), 0.08) !important;
+}
+
+.sidebar-nav li a.active::before {
+    content:       '' !important;
+    position:      absolute !important;
+    left:          0 !important;
+    top:           18% !important;
+    bottom:        18% !important;
+    width:         3px !important;
+    border-radius: 0 3px 3px 0 !important;
+    background:    var(--nav-accent) !important;
+}
+
+
+/* ── Icon box ─────────────────────────────────────────────────────── */
+.sidebar-nav li a .nav-icon-box {
+    width:           var(--nav-icon-size) !important;
+    height:          var(--nav-icon-size) !important;
+    border-radius:   8px !important;
+    background:      var(--nav-icon-bg) !important;
+    display:         flex !important;
+    align-items:     center !important;
+    justify-content: center !important;
+    margin-right:    11px !important;
+    flex-shrink:     0 !important;
+    transition:      background var(--nav-transition),
+                     box-shadow var(--nav-transition) !important;
+}
+
+.sidebar-nav li a.active .nav-icon-box {
+    background: var(--nav-icon-active-bg) !important;
+    box-shadow: 0 3px 12px rgba(var(--color-gold-rgb), 0.28) !important;
+}
+
+.sidebar-nav li a:hover .nav-icon-box {
+    background: rgba(232,240,255,0.11) !important;
+}
+
+/* Icon inside box */
+.sidebar-nav li a .nav-icon-box i,
+.sidebar-nav li a .nav-icon-box svg {
+    font-size:   0.92rem !important;
+    line-height: 1 !important;
+    margin:      0 !important;
+    width:       auto !important;
+    color:       inherit !important;
+}
+
+.sidebar-nav li a.active .nav-icon-box i {
+    color: var(--nav-accent) !important;
+}
+
+/* Direct <i> tags without icon box (legacy) */
+.sidebar-nav li a > i:first-child {
+    width:           var(--nav-icon-size) !important;
+    height:          var(--nav-icon-size) !important;
+    display:         flex !important;
+    align-items:     center !important;
+    justify-content: center !important;
+    font-size:       0.92rem !important;
+    margin-right:    11px !important;
+    flex-shrink:     0 !important;
+    border-radius:   8px !important;
+    background:      var(--nav-icon-bg) !important;
+}
+
+.sidebar-nav li a.active > i:first-child {
+    background: var(--nav-icon-active-bg) !important;
+    box-shadow: 0 3px 12px rgba(var(--color-gold-rgb), 0.28) !important;
+    color:      var(--nav-accent) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   EXPANDABLE NAV GROUP  (currently just "What We Offer" — see
+   app-nav.js's NAV[].children + buildSidebar()). Tapping the parent
+   link toggles this open/closed in place; each child link below it is
+   a real nav-link that navigates to its own actual section.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Chevron on the parent link — rotates to point down when open */
+.sidebar-nav li a .nav-expand-chevron {
+    margin-left:  auto !important;
+    font-size:    0.7rem !important;
+    opacity:      0.45 !important;
+    flex-shrink:  0 !important;
+    transition:   transform var(--nav-transition), opacity var(--nav-transition) !important;
+}
+.sidebar-nav li a:hover .nav-expand-chevron { opacity: 0.75 !important; }
+.nav-item--expandable.nav-item--open > a .nav-expand-chevron {
+    transform: rotate(90deg) !important;
+    opacity:   0.85 !important;
+}
+
+/* Sub-list — collapsed by default, revealed when the parent <li> carries
+   .nav-item--open (added/removed by buildSidebar()'s click handler). */
+.nav-sublist {
+    list-style: none !important;
+    margin:     2px 0 4px !important;
+    padding:    0 !important;
+    display:    grid !important;
+    grid-template-rows: 0fr !important;
+    overflow:   hidden !important;
+    transition: grid-template-rows var(--nav-transition) !important;
+}
+.nav-sublist > * { min-height: 0 !important; }
+.nav-item--open > .nav-sublist { grid-template-rows: 1fr !important; }
+.nav-sublist li { list-style: none !important; margin: 0 !important; overflow: hidden !important; }
+
+/* Sub-links — same family as a normal nav-link, indented and slightly
+   smaller so the hierarchy reads clearly under the parent. */
+.sidebar-nav li.nav-item--expandable .nav-sublink {
+    margin:      2px 10px 2px 30px !important;
+    padding:     7px 12px !important;
+    font-size:   0.8rem !important;
+    font-weight: 500 !important;
+}
+.sidebar-nav li.nav-item--expandable .nav-sublink .nav-icon-box {
+    width:  26px !important;
+    height: 26px !important;
+    margin-right: 9px !important;
+}
+.sidebar-nav li.nav-item--expandable .nav-sublink .nav-icon-box i {
+    font-size: 0.78rem !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAV — premium dark-glass + champagne gold
+   FIX (2026-07-21 — Midnight & Champagne Gold recolor): this block was
+   still hardcoded to a plain white background with Facebook's blue
+   (#1877f2) for the active state, even though this very file already
+   defines a full dark/gold token set above (--nav-bg, --nav-accent,
+   --mobile-nav-active, --mobile-nav-border) for exactly this purpose —
+   they were just never wired up to the actual footer nav rules, only to
+   the sidebar. That mismatch (dark/gold sidebar, white/blue footer) was
+   a real source of the app feeling inconsistent/dull on mobile, since
+   the footer is what most people actually navigate with day to day.
+   Every rule below now pulls from those existing tokens instead of a
+   hardcoded literal, so a future palette change only ever has to happen
+   in the :root block above — nothing here needs touching again. The
+   badge (red, unread count) and avatar border-radius are untouched;
+   only background/text/active colors changed.
+   ═══════════════════════════════════════════════════════════════════ */
+
+#mobile-bottom-nav {
+    position:        fixed !important;
+    bottom:          0 !important;
+    left:            0 !important;
+    right:           0 !important;
+    background:      var(--nav-bg) !important;
+    border-top:      1px solid var(--mobile-nav-border) !important;
+    display:         flex !important;
+    align-items:     stretch !important;
+    justify-content: space-around !important;
+    z-index:         9990 !important;
+    height:          60px !important;
+    padding:         0 !important;
+    padding-bottom:  env(safe-area-inset-bottom, 0px) !important;
+    box-shadow:      0 -4px 20px rgba(0,0,0,0.35) !important;
+    overflow-x:      auto !important;
+    scrollbar-width: none !important;
+}
+#mobile-bottom-nav::-webkit-scrollbar { display: none; }
+
+.mobile-nav-item {
+    flex:            1 0 52px !important;
+    min-width:       52px !important;
+    max-width:       96px !important;
+    display:         flex !important;
+    flex-direction:  column !important;
+    align-items:     center !important;
+    justify-content: center !important;
+    background:      none !important;
+    border:          none !important;
+    cursor:          pointer !important;
+    padding:         6px 4px !important;
+    gap:             2px !important;
+    color:           var(--nav-text-muted) !important;
+    font-size:       0.58rem !important;
+    font-weight:     600 !important;
+    min-height:      60px !important;
+    border-radius:   0 !important;
+    letter-spacing:  0.01em !important;
+    transition:      color 0.15s ease !important;
+    white-space:     nowrap !important;
+    position:        relative !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.mobile-nav-item i,
+.mobile-nav-item svg {
+    font-size:     1.45rem !important;
+    line-height:   1 !important;
+    margin-bottom: 0 !important;
+    color:         var(--nav-text-muted) !important;
+    transition:    color 0.15s ease !important;
+}
+
+.mobile-nav-item span {
+    font-size:     0.58rem !important;
+    white-space:   nowrap !important;
+    overflow:      hidden !important;
+    text-overflow: ellipsis !important;
+    max-width:     100% !important;
+    color:         var(--nav-text-muted) !important;
+}
+
+.mobile-nav-item.active {
+    color:       var(--mobile-nav-active) !important;
+    border-top:  3px solid var(--mobile-nav-active) !important;
+}
+
+.mobile-nav-item.active i {
+    color:  var(--mobile-nav-active) !important;
+    filter: drop-shadow(0 0 5px rgba(var(--color-gold-rgb), 0.45)) !important;
+}
+
+.mobile-nav-item.active > span {
+    color: var(--mobile-nav-active) !important;
+}
+
+/* Small centered dot under the active icon, echoing the same "quiet
+   glow" language used elsewhere in the premium palette (nav-nav-progress
+   bar, sidebar active state) — purely decorative, no layout impact
+   since it's absolutely positioned within the already-relative item. */
+.mobile-nav-item.active::after {
+    content:       "" !important;
+    position:      absolute !important;
+    bottom:        4px !important;
+    left:          50% !important;
+    transform:     translateX(-50%) !important;
+    width:         4px !important;
+    height:        4px !important;
+    border-radius: 50% !important;
+    background:    var(--mobile-nav-active) !important;
+    box-shadow:    0 0 6px rgba(var(--color-gold-rgb), 0.7) !important;
+}
+
+.mobile-nav-item *::before,
+.mobile-nav-item *::after { content: none !important; }
+
+/* Icon + badge wrapper */
+.v8-nav-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Notification badge */
+.v8-nav-badge {
+    position:   absolute !important;
+    top:        -5px !important;
+    right:      -8px !important;
+    background: #e41e3f !important;
+    color:      white !important;
+    font-size:  0.58rem !important;
+    font-weight:700 !important;
+    min-width:  16px !important;
+    height:     16px !important;
+    padding:    0 3px !important;
+    border-radius: 10px !important;
+    display:    flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border:     1.5px solid #fff !important;
+    line-height:1 !important;
+}
+
+/* Profile avatar in nav */
+.v8-nav-avatar {
+    width:        28px !important;
+    height:       28px !important;
+    border-radius:50% !important;
+    object-fit:   cover !important;
+    border:       2px solid transparent !important;
+    display:      block !important;
+}
+.mobile-nav-item.active .v8-nav-avatar {
+    border-color: var(--mobile-nav-active) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE HAMBURGER TOGGLE
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mobile-menu-toggle {
+    display:         none;
+    position:        fixed;
+    top:             12px;
+    left:            12px;
+    width:           40px;
+    height:          40px;
+    align-items:     center;
+    justify-content: center;
+    background:      #0B1437 !important;
+    color:           #E8F0FF !important;
+    border:          1px solid rgba(var(--color-gold-rgb), 0.30) !important;
+    border-radius:   10px !important;
+    z-index:         9998;
+    cursor:          pointer;
+    box-shadow:      0 4px 18px rgba(0,0,0,0.40) !important;
+    font-size:       1rem !important;
+}
+
+@media (max-width: 992px) {
+    .mobile-menu-toggle { display: flex !important; }
+    .sidebar {
+        transform: translateX(-100%);
+        /* FIX (2026-10-04): the base .sidebar rule above carries a permanent
+           `4px 0 40px` !important shadow; with the drawer parked at -100% that
+           shadow still bleeds ~44px onto the left edge of every screen, above
+           everything (z-index 9999) -- the grey smudge/blur on the left edge.
+           Closed drawer now has no shadow and is not painted at all
+           (visibility flips only AFTER the slide-out finishes, so the close
+           animation still plays). */
+        box-shadow: none !important;
+        visibility: hidden;
+        transition: transform 0.26s ease, visibility 0s linear 0.26s !important;
+    }
+    .sidebar.open {
+        transform: translateX(0) !important;
+        box-shadow: 8px 0 40px rgba(0,0,0,0.50) !important;
+        visibility: visible;
+        transition: transform 0.26s ease, visibility 0s linear 0s !important;
+    }
+    .main-content { margin-left: 0 !important; }
+}
+
+/* Hide the fixed hamburger toggle while viewing another user's profile —
+   it sits at top:12px;left:12px;40x40px, directly on top of the "← My
+   Profile" back button (the first element in that section's content, same
+   top-left corner), and being position:fixed it wins every tap there
+   regardless of what's underneath — the back button never actually
+   receives the click. Body class set/cleared by app-profile.js's
+   renderUserProfile()/empyrean-section-change handling. Same pattern
+   already used for .reel-open / .vf-thread-open / .mkt-hide-menu-toggle
+   above. */
+body.viewing-other-profile .mobile-menu-toggle { display: none !important; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION FADE-IN
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* FIX (2026-08-27): added !important — see style.css's matching fix
+   (same date) on its own base .content-section rule for the full
+   explanation. This file's copy of the rule had the same gap. */
+.content-section { display: none !important; animation: empNavFadeIn 0.20s ease; }
+.content-section.active { display: block !important; }
+
+@keyframes empNavFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0);   }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   LAYOUT HELPERS
+   ═══════════════════════════════════════════════════════════════════ */
+
+.main-content {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* App body background — light blue-white instead of harsh grey */
+body {
+    background: #F0F4FF !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SIDEBAR SEARCH BOX
+   ═══════════════════════════════════════════════════════════════════ */
+
+#sidebar-search-input,
+.sidebar-search input {
+    background:    rgba(232,240,255,0.06) !important;
+    border:        1px solid rgba(var(--color-gold-rgb), 0.14) !important;
+    color:         var(--nav-text) !important;
+    border-radius: 10px !important;
+}
+#sidebar-search-input::placeholder,
+.sidebar-search input::placeholder {
+    color: var(--nav-text-muted) !important;
+}
+#sidebar-search-input:focus,
+.sidebar-search input:focus {
+    border-color: rgba(var(--color-gold-rgb), 0.50) !important;
+    outline:      none !important;
+    box-shadow:   0 0 0 3px rgba(var(--color-gold-rgb), 0.09) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SIDEBAR SCROLLBAR
+   ═══════════════════════════════════════════════════════════════════ */
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb {
+    background:    rgba(var(--color-gold-rgb), 0.20);
+    border-radius: 4px;
+}
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SIDEBAR SOCIAL LINKS FOOTER
+   ═══════════════════════════════════════════════════════════════════ */
+
+.sidebar .social-links a {
+    color:      rgba(232,240,255,0.42) !important;
+    transition: color 0.15s !important;
+}
+.sidebar .social-links a:hover {
+    color: var(--nav-accent) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ACCENT / BUTTON OVERRIDES — swap purple out for royal blue
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Buttons that were purple-gradient */
+.btn-accent,
+button.btn-accent {
+    background: linear-gradient(135deg, #1A3380, #2563EB) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.35) !important;
+}
+.btn-accent:hover,
+button.btn-accent:hover {
+    background: linear-gradient(135deg, #2563EB, #38BDF8) !important;
+    box-shadow: 0 6px 22px rgba(37,99,235,0.50) !important;
+}
+
+/* Admin PIN overlay accent */
+#admin-pin-overlay h3 { color: var(--nav-accent) !important; }
+.pin-dot { border-color: var(--nav-accent) !important; }
+.pin-dot.filled { background: var(--nav-accent) !important; }
+
+/* KYC / Settings active tab */
+.kyc-entity-btn.active,
+.settings-tab.active {
+    background: #102057 !important;
+    color: var(--nav-accent-light) !important;
+    box-shadow: 0 2px 12px rgba(37,99,235,0.25) !important;
+}
+
+/* Profile active tab underline */
+.profile-tab.active {
+    border-bottom: 3px solid var(--nav-accent) !important;
+    color: #0B1437 !important;
+    font-weight: 700 !important;
+}
+
+/* Live action buttons */
+.live-action-btn:hover {
+    background: rgba(var(--color-gold-rgb), 0.18) !important;
+    border-color: rgba(var(--color-gold-rgb), 0.40) !important;
+}
+
+/* Gift button */
+.gift-button {
+    background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-light)) !important;
+    color: #0B1437 !important;
+}
+
+/* Message bubbles */
+.message-bubble.sent {
+    background: linear-gradient(135deg, #102057, #1A3380) !important;
+    color: white !important;
+}
+
+/* Media upload button */
+.btn-media-upload {
+    background: rgba(37,99,235,0.06) !important;
+    color: #2563EB !important;
+    border: 1.5px dashed rgba(37,99,235,0.25) !important;
+}
+.btn-media-upload:hover {
+    background: rgba(37,99,235,0.11) !important;
+    border-color: #2563EB !important;
+}
+
+/* Table headers in admin/grant */
+.grant-table th {
+    background: #102057 !important;
+    color: var(--nav-accent-light) !important;
+}
+
+/* Contact item active */
+.contact-item.active {
+    background: rgba(37,99,235,0.06) !important;
+    border-left: 3px solid #2563EB !important;
+}
+
+/* Form feedback links */
+.form-feedback.info {
+    background: rgba(37,99,235,0.06) !important;
+    border-color: #2563EB !important;
+    color: #1A3380 !important;
+}
