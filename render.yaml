@@ -1,0 +1,169 @@
+##############################################################
+#  Empyrean Humanitarian Platform — Render Deployment Config
+#  https://render.com/docs/render-yaml-specification
+##############################################################
+services:
+  - type: web
+    name: empyrean-app
+    runtime: node
+    plan: starter                      # upgrade to standard/pro for prod
+    region: oregon                     # closest to your users
+    branch: main
+    buildCommand: npm install
+    startCommand: node server.js
+    # ── Health check ─────────────────────────────────────────
+    healthCheckPath: /api/config
+    # ── All sensitive keys stored ONLY here — never in code ──
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Firebase (Web SDK — public project config)
+      - key: FIREBASE_API_KEY
+        sync: false                    # set manually in Render dashboard
+      - key: FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: FIREBASE_APP_ID
+        sync: false
+      - key: FIREBASE_MEASUREMENT_ID
+        sync: false
+      # Firebase Admin SDK (service account — for server-side FCM push)
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false                    # paste full JSON string from Firebase console
+      # SendGrid (transactional email — welcome / SOS / withdrawal notices)
+      - key: SENDGRID_API_KEY
+        sync: false                    # starts with "SG." — from SendGrid dashboard
+      - key: SENDGRID_FROM_EMAIL
+        sync: false                    # must be a verified single-sender or domain in SendGrid
+      - key: SENDGRID_FROM_NAME
+        value: Empyrean Team            # optional display name; falls back to APP_NAME if unset
+      # Anthropic (Claude vision — automatic image/tally consistency check
+      # on the Election Hub's public polling-unit results uploader; see
+      # server.js's POST /api/election/verify-result). Leaving this unset
+      # is safe: that route just answers `{flagged:false, skipped:true}`
+      # and the client submits the result unverified — nothing breaks,
+      # results just aren't auto-flagged for a photo/tally mismatch.
+      - key: ANTHROPIC_API_KEY
+        sync: false                    # from console.anthropic.com > API Keys
+      # ElevenLabs (neural text-to-speech — powers the "🔊 Hear this
+      # section" human-sounding narration in the Donor Hub/Sponsor a Cause
+      # and Grant Transparency Portal, see server.js's /api/tts route).
+      # Leaving this unset is safe: /api/tts just answers 501 and the
+      # client falls back to the browser's built-in speechSynthesis voice
+      # automatically — nothing breaks, it's just the old robotic voice.
+      - key: ELEVENLABS_API_KEY
+        sync: false                    # from elevenlabs.io > Developer > API Key
+      # Optional: override the default "Rachel" premade voice (verified to
+      # support all six narration languages this feature uses) with a
+      # different ElevenLabs voice_id.
+      - key: ELEVENLABS_VOICE_ID
+        sync: false
+      # FCM Web Push VAPID key (public) — Firebase Console > Project
+      # Settings > Cloud Messaging > Web configuration > Web Push
+      # certificates. Required for browser push notifications; native
+      # Android push does not need it.
+      - key: FCM_VAPID_KEY
+        sync: false
+      # Optional: override the default broadcast topic name ("empyrean_all")
+      # that new-post/SOS/crisis notifications go out on.
+      - key: FCM_BROADCAST_TOPIC
+        value: empyrean_all
+      # Optional: your app's display name used in push notifications and
+      # OG preview cards. Defaults to "Empyrean Humanitarian Foundation".
+      - key: APP_NAME
+        value: Empyrean
+      # Cloudinary (cloud name + unsigned preset are public; committed directly
+      # so they don't need to be re-pasted into the Render dashboard manually)
+      - key: CLOUDINARY_CLOUD
+        value: dxwmts9vw
+      - key: CLOUDINARY_PRESET
+        value: ehfapp_preset
+      - key: CLOUDINARY_API_SECRET
+        sync: false                    # never sent to browser
+      # Admin API key — separate from CLOUDINARY_PRESET (that's for
+      # unsigned client-side uploads only). Required for server.js's
+      # POST /api/media/purge route (media-download-routes.js) to actually
+      # delete a Cloudinary-hosted asset — Cloudinary's destroy endpoint is
+      # a SIGNED Admin API call needing api_key + api_secret together;
+      # CLOUDINARY_API_SECRET alone isn't enough. From Cloudinary
+      # Dashboard > Settings > API Keys. Safe to leave unset: the purge
+      # route skips Cloudinary URLs cleanly (reports them as not-deleted
+      # with a reason, doesn't throw) until this is added — it just means
+      # Firebase-Storage-hosted media (most content, post-migration) still
+      # gets deleted, only legacy Cloudinary-hosted files don't yet.
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      # Flutterwave
+      - key: FLW_PUBLIC_KEY
+        sync: false                    # publishable — sent to browser via /api/config
+      - key: FLW_SECRET_KEY
+        sync: false                    # secret — server-only, used in /api/flw/verify
+      - key: FLW_ENCRYPTION_KEY
+        sync: false                    # server-only
+      # Flutterwave webhook secret hash — set this to any string you choose,
+      # then paste the SAME string into Flutterwave Dashboard > Settings >
+      # Webhooks > "Secret Hash", with the webhook URL set to
+      # https://<your-render-domain>/api/webhooks/flutterwave and the
+      # "transfer.completed" event enabled. This is NOT the same value as
+      # FLW_SECRET_KEY — it's only used to verify inbound webhook calls
+      # really came from Flutterwave (checked against the verif-hash
+      # header). Required for /api/webhooks/flutterwave to do anything;
+      # without it the route just logs a warning and ignores every call.
+      - key: FLW_WEBHOOK_HASH
+        sync: false
+      # Port (Render sets this automatically, but explicit is fine)
+      - key: PORT
+        value: 3000
+      # Agora (App ID/Certificate pair — from Agora Console > Project
+      # Management). App ID travels to the browser via /api/config (it's
+      # not secret); App Certificate never leaves this server and is only
+      # used to sign RTC tokens in /api/agora-token and — as of the Cloud
+      # Recording feature below — /api/agora-recording/start. Required for
+      # live streaming to work at all, not just for recording.
+      - key: AGORA_APP_ID
+        sync: false
+      - key: AGORA_APP_CERTIFICATE
+        sync: false
+      # Agora Cloud Recording (server-side, multi-participant composited
+      # stream replay — see /api/agora-recording/start+stop in server.js).
+      # AGORA_CUSTOMER_KEY/SECRET are the Agora RESTful API credential
+      # pair — generated separately from AGORA_APP_ID/AGORA_APP_CERTIFICATE
+      # above, in Agora Console > RESTful API. Recording is entirely
+      # optional: if these (and the storage vars below) aren't set,
+      # /api/config reports recording.cloudAvailable:false and the client
+      # automatically falls back to its existing host-device recording —
+      # nothing breaks by leaving this whole block unset.
+      - key: AGORA_CUSTOMER_KEY
+        sync: false
+      - key: AGORA_CUSTOMER_SECRET
+        sync: false
+      # Fixed uid the recording service joins each live channel as —
+      # any large number is fine, just keep it stable once set.
+      - key: AGORA_RECORDING_UID
+        value: "999999"
+      # Where Agora Cloud Recording actually writes the recorded files —
+      # NOT Cloudinary; Agora's Cloud Recording only supports a short list
+      # of third-party cloud storage vendors, addressed by numeric vendor
+      # code (see server.js's _storageConfig() comment for the code list).
+      # A typical setup is a plain AWS S3 bucket.
+      - key: RECORDING_STORAGE_VENDOR
+        sync: false                    # numeric vendor code, e.g. "1" for AWS S3
+      - key: RECORDING_STORAGE_REGION
+        sync: false                    # numeric region code per Agora's storageConfig spec
+      - key: RECORDING_BUCKET
+        sync: false
+      - key: RECORDING_ACCESS_KEY
+        sync: false
+      - key: RECORDING_SECRET_KEY
+        sync: false
+      # Public base URL used to turn a recorded fileName into a playable
+      # videoUrl for the stream_replays doc — the bucket's own public URL,
+      # or a CDN/CloudFront domain sitting in front of it. Must NOT have a
+      # trailing slash requirement; server.js strips one if present.
+      - key: RECORDING_PUBLIC_BASE_URL
+        sync: false
