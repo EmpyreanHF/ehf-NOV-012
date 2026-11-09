@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.joinempyrean.empyrean.store",
+      "sha256_cert_fingerprints": [
+        "9E:3A:19:F5:FA:94:BB:CD:5A:B5:40:44:D9:6F:E5:5B:48:55:A8:DB:9E:C7:17:05:34:9E:BA:6D:F5:01:F4:63",
+        "8D:2E:D8:A6:98:A1:7E:65:F0:59:5A:E9:DE:28:D6:BC:4A:83:35:A0:65:83:3E:B3:59:34:FD:45:3D:11:CC:F3"
+      ]
+    }
+  }
+]
